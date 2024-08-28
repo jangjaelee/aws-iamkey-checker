@@ -21,13 +21,13 @@ from datetime import datetime, timezone, timedelta
 # Starting FastAPI
 app = FastAPI()
 
-# ê¸°ë³¸ í”„ë¡œë°”ì¼ì„ ì‚¬ìš©í•˜ì—¬ ì„¸ì…˜ ìƒì„±
+# ±âº» ÇÁ·Î¹ÙÀÏÀ» »ç¿ëÇÏ¿© ¼¼¼Ç »ı¼º
 session = boto3.Session()
     
-# AWS Security Token Service(STS)client ìƒì„±
+# AWS Security Token Service(STS)client »ı¼º
 sts_client = session.client('sts')
 
-# AWS Identity and Access Management(IAM) client ìƒì„±
+# AWS Identity and Access Management(IAM) client »ı¼º
 #iam_client = boto3.client('iam')
 iam_client = session.client('iam')
 
@@ -40,7 +40,7 @@ def get_account_summary():
 
 
 def get_account_info():
-    # AWS Account ID íšë“
+    # AWS Account ID È¹µæ
     sts_response = sts_client.get_caller_identity()
     account_id = sts_response['Account']
 
@@ -48,7 +48,7 @@ def get_account_info():
     alias_response = iam_client.list_account_aliases()
     account_alias = alias_response['AccountAliases']
 
-    # Account ID and Alias ì¶œë ¥
+    # Account ID and Alias Ãâ·Â
     #print(f"AWS Account ID: {account_id}")
     #if aliases:
     #    print(f"AWS Account Alias: {aliases[0]}")
@@ -81,10 +81,10 @@ def expired_access_key_check(hours: int, mode: str="API"):
         for key in access_keys['AccessKeyMetadata']:
             creation_date = str(key['CreateDate'])
 
-            # ë¬¸ìì—´ì„ datetime ê°ì²´ë¡œ ë³€í™˜
+            # ¹®ÀÚ¿­À» datetime °´Ã¼·Î º¯È¯
             start_time = datetime.fromisoformat(creation_date)
 
-            # ê²½ê³¼ ì‹œê°„ ê³„ì‚°
+            # °æ°ú ½Ã°£ °è»ê
             elapsed_time = current_time - start_time
             #total_days = int(elapsed_time.days)
             total_hours = int(elapsed_time.total_seconds() / 3600)
@@ -100,7 +100,7 @@ def expired_access_key_check(hours: int, mode: str="API"):
                     "Access Key ID": key['AccessKeyId'],
                     "Access Key Creation Date": creation_date,
                     "Access Key Status": key['Status'],
-                    "Expiration Time": past_hours
+                    "Expired Hours": past_hours
                 }
                 result.append(user_info)
 
