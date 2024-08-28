@@ -5,30 +5,34 @@
 # * Title    : AWS Access Key expired checker of IAM Users
 # * Auther   : by Jangjae, Lee
 # * Created  : 08-28-2024
-# * Modified : 
+# * Modified : 08-29-2024
 # * E-mail   : cine0831@gmail.com
 #**/
 
 import boto3
 import json
 import uvicorn
+import argparse
 from botocore.exceptions import ClientError
 from typing import Union
 from fastapi import FastAPI, HTTPException
 from datetime import datetime, timezone, timedelta
 
+# Starting FastAPI
 app = FastAPI()
 
-# ±âº» ÇÁ·Î¹ÙÀÏÀ» »ç¿ëÇÏ¿© ¼¼¼Ç »ı¼º
+# ê¸°ë³¸ í”„ë¡œë°”ì¼ì„ ì‚¬ìš©í•˜ì—¬ ì„¸ì…˜ ìƒì„±
 session = boto3.Session()
     
-# AWS Security Token Service(STS)client »ı¼º
+# AWS Security Token Service(STS)client ìƒì„±
 sts_client = session.client('sts')
 
-# AWS Identity and Access Management(IAM) client »ı¼º
+# AWS Identity and Access Management(IAM) client ìƒì„±
 #iam_client = boto3.client('iam')
 iam_client = session.client('iam')
 
+
+N = int(0)
 
 def get_account_summary():
     res = iam_client.get_account_summary()
@@ -36,7 +40,7 @@ def get_account_summary():
 
 
 def get_account_info():
-    # AWS Account ID È¹µæ
+    # AWS Account ID íšë“
     sts_response = sts_client.get_caller_identity()
     account_id = sts_response['Account']
 
@@ -44,7 +48,7 @@ def get_account_info():
     alias_response = iam_client.list_account_aliases()
     account_alias = alias_response['AccountAliases']
 
-    # Account ID and Alias Ãâ·Â
+    # Account ID and Alias ì¶œë ¥
     #print(f"AWS Account ID: {account_id}")
     #if aliases:
     #    print(f"AWS Account Alias: {aliases[0]}")
@@ -55,7 +59,7 @@ def get_account_info():
 
 
 
-def expired_access_key_check(hours: int):
+def expired_access_key_check(hours: int, mode: str="API"):
     N_hour = hours
 
     # Get the current time
@@ -77,10 +81,10 @@ def expired_access_key_check(hours: int):
         for key in access_keys['AccessKeyMetadata']:
             creation_date = str(key['CreateDate'])
 
-            # ¹®ÀÚ¿­À» datetime °´Ã¼·Î º¯È¯
+            # ë¬¸ìì—´ì„ datetime ê°ì²´ë¡œ ë³€í™˜
             start_time = datetime.fromisoformat(creation_date)
 
-            # °æ°ú ½Ã°£ °è»ê
+            # ê²½ê³¼ ì‹œê°„ ê³„ì‚°
             elapsed_time = current_time - start_time
             #total_days = int(elapsed_time.days)
             total_hours = int(elapsed_time.total_seconds() / 3600)
@@ -100,10 +104,12 @@ def expired_access_key_check(hours: int):
                 }
                 result.append(user_info)
 
-    #res = json.dumps(result, indent=4)
-    # Print the result list as a JSON array
-    #print(res)
-    return result
+    if mode == 'CLI':
+        res = json.dumps(result, indent=4)
+        #Print the result list as a JSON array
+        print(res)
+    else:
+        return result
 
 
 @app.get("/")
@@ -114,7 +120,7 @@ async def root():
     return {"AWS Access Key expirion checker for IAM User"}
 
 
-@app.get("/account_summary")
+@app.get("/account/summary")
 async def account_summary():
     """
     Get information an AWS Account Summary
@@ -126,7 +132,7 @@ async def account_summary():
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@app.get("/account_info")
+@app.get("/account/info")
 async def account_info():
     """
     Get information an AWS Account Information
@@ -138,11 +144,12 @@ async def account_info():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/key_check")
+@app.get("/key-check")
 async def get_expired_access_key_check(hours: int):
     """
     To check expired AWS Access Keys of IAM Users
-    """    
+    """
+
     try:
         keys = expired_access_key_check(hours)
         if not keys:
@@ -151,17 +158,54 @@ async def get_expired_access_key_check(hours: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/user/{username}")
+async def get_user_info(username: str):
+    """
+    Get information about an IAM user.
+    """
+    try:
+        res = iam_client.get_user(UserName=username)
+        return res['User']
+    except ClientError as e:
+        raise HTTPException(status_code=404, detail=f"User {username} not found. {e.response['Error']['Message']}")
+
+
+@app.get("/user/{username}/access-keys")
+async def list_access_keys(username: str):
+    """
+    List access keys for an IAM user.
+    """
+    try:
+        res = iam_client.list_access_keys(UserName=username)
+        return res['AccessKeyMetadata']
+    except ClientError as e:
+        raise HTTPException(status_code=404, detail=f"Cannot list access keys for {username}. {e.response['Error']['Message']}")
+
+
+def parsing_argument():
+    parser = argparse.ArgumentParser(description="FastAPI application with CLI parameters.")
+    parser.add_argument("-T", "--time", type=int, default=2160, help="Expiration time" )
+    parser.add_argument("-H", "--host", type=str, default="127.0.0.1", help="Listen address")
+    parser.add_argument("-P", "--port", type=int, default=8000, help="Port number")
+    parser.add_argument("-M", "--mode", type=str, default="API", help="CLI or API mode")
+    #parser.add_argument("-V", "--version", typ'version', version='v0.1')
+    return parser.parse_args()
+
 def main():
-    #opt = parsing(sys.argv[1:])
-    #run(opt)
+    # by using argument on CLI
+    args = parsing_argument()
+    config = args
 
-    N = int(20000) 
+    #if mode CLI or API
+    if config.mode == 'API':
+        uvicorn.run("main:app", host=config.host, port=config.port)
+    elif config.mode == 'CLI':
+        expired_access_key_check(config.time, config.mode)
+    else:
+        exit
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-    #get_account_info()
-    # Call the function to list users with recent access keys
-    #list_users_with_recent_access_keys(N)
-
+    
 if __name__ == "__main__":
     main()
+
