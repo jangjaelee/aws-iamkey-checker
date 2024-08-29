@@ -13,21 +13,22 @@ import boto3
 import json
 import uvicorn
 import argparse
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 from typing import Union
 from fastapi import FastAPI, HTTPException
 from datetime import datetime, timezone, timedelta
 
-# Starting FastAPI
+
+# FastAPI 시작
 app = FastAPI()
 
-# �⺻ ���ι����� ����Ͽ� ���� ����
+# 기본 프로바일을 사용하여 세션 생성
 session = boto3.Session()
     
-# AWS Security Token Service(STS)client ����
+# AWS Security Token Service(STS)client 생성
 sts_client = session.client('sts')
 
-# AWS Identity and Access Management(IAM) client ����
+# AWS Identity and Access Management(IAM) client 생성
 #iam_client = boto3.client('iam')
 iam_client = session.client('iam')
 
@@ -35,82 +36,132 @@ iam_client = session.client('iam')
 N = int(0)
 
 def get_account_summary():
-    res = iam_client.get_account_summary()
-    return res
+    try:
+        res = iam_client.get_account_summary()
+        return res
 
+    except NoCredentialsError:
+        raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
+    except PartialCredentialsError:
+        raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
+    except ClientError as e:
+        # Handle any specific client errors
+        error_code = e.response['Error']['Code']
+        if error_code == 'AccessDenied':
+            raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
+        else:
+            raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
+    except Exception as e:
+        # General exception handling
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+        
 
 def get_account_info():
-    # AWS Account ID ȹ��
-    sts_response = sts_client.get_caller_identity()
-    account_id = sts_response['Account']
+    try:
+        # AWS Account ID 가져오기
+        sts_response = sts_client.get_caller_identity()
+        account_id = sts_response['Account']
 
-    # Get account aliases
-    alias_response = iam_client.list_account_aliases()
-    account_alias = alias_response['AccountAliases']
+        # AWS Account Alias 가져오기
+        alias_response = iam_client.list_account_aliases()
+        account_alias = alias_response['AccountAliases']
 
-    # Account ID and Alias ���
-    #print(f"AWS Account ID: {account_id}")
-    #if aliases:
-    #    print(f"AWS Account Alias: {aliases[0]}")
-    #else:
-    #    print("No account alias found.")
-    res = { "AWS Account ID": account_id, "AWS Account Alias": account_alias[0] }
-    return res
+        # Account ID and Alias 출력
+        #print(f"AWS Account ID: {account_id}")
+        #if aliases:
+        #    print(f"AWS Account Alias: {aliases[0]}")
+        #else:
+        #    print("No account alias found.")
+        res = { 
+            "AWS Account ID": account_id,
+            "AWS Account Alias": account_alias[0]
+        }
+        return res
 
+    except NoCredentialsError:
+        raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
+    except PartialCredentialsError:
+        raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
+    except ClientError as e:
+        # Handle any specific client errors
+        error_code = e.response['Error']['Code']
+        if error_code == 'AccessDenied':
+            raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
+        else:
+            raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
+    except Exception as e:
+        # General exception handling
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
 def expired_access_key_check(hours: int, mode: str="API"):
-    N_hour = hours
+    try:
+        # N 시간
+        N_hour = hours
 
-    # Get the current time
-    current_time = datetime.now(timezone.utc)
+        # 현재시간 가져오기
+        current_time = datetime.now(timezone.utc)
 
-    # Get the list of all IAM users
-    users = iam_client.list_users()
+        # 모든 AWS IAM users 목록 가져오기
+        users = iam_client.list_users()
 
-    result = []
+        # empty list 변수 선언
+        result = []
 
-    # Iterate over each user
-    for user in users['Users']:
-        username = user['UserName']
+        for user in users['Users']:
+            username = user['UserName']
 
-        # List the access keys for the user
-        access_keys = iam_client.list_access_keys(UserName=username)
+            # IAM user의 Access Keys 목록 자겨오기
+            access_keys = iam_client.list_access_keys(UserName=username)
 
-        # Check each access key's creation date
-        for key in access_keys['AccessKeyMetadata']:
-            creation_date = str(key['CreateDate'])
+            # AccessKeyMetada로부터 Access Key 생성 날짜 가져오기
+            for key in access_keys['AccessKeyMetadata']:
+                creation_date = str(key['CreateDate'])
 
-            # ���ڿ��� datetime ��ü�� ��ȯ
-            start_time = datetime.fromisoformat(creation_date)
+                # 문자열을 datetime 객체로 변환
+                start_time = datetime.fromisoformat(creation_date)
 
-            # ��� �ð� ���
-            elapsed_time = current_time - start_time
-            #total_days = int(elapsed_time.days)
-            total_hours = int(elapsed_time.total_seconds() / 3600)
-            #print(total_hours)
+                # 경과 시간 계산
+                elapsed_time = current_time - start_time
+                #total_days = int(elapsed_time.days)
+                total_hours = int(elapsed_time.total_seconds() / 3600)
+                #print(total_hours)
+                past_hours = total_hours - N_hour
+                #print(past_hours)
 
-            past_hours = total_hours - N_hour
-            #print(past_hours)
+                # Access Key가 생성된지 N시간이 지난경우 IAM user의 Access Key 세부 정보와 지난 시간 출력
+                if past_hours <= 0:
+                    user_info = {
+                        "IAM User": username,
+                        "Access Key ID": key['AccessKeyId'],
+                        "Access Key Creation Date": creation_date,
+                        "Access Key Status": key['Status'],
+                        "Expired Hours": past_hours
+                    }
+                    result.append(user_info)
 
-            # If the key was created within the past N days, print the details
-            if past_hours <= 0:
-                user_info = {
-                    "IAM User": username,
-                    "Access Key ID": key['AccessKeyId'],
-                    "Access Key Creation Date": creation_date,
-                    "Access Key Status": key['Status'],
-                    "Expired Hours": past_hours
-                }
-                result.append(user_info)
-
-    if mode == 'CLI':
-        res = json.dumps(result, indent=4)
-        #Print the result list as a JSON array
-        print(res)
-    else:
-        return result
-
+        # CLI mode로 동작시 JSON 형식으로 출력
+        if mode == 'CLI':
+            res = json.dumps(result, indent=4)
+            print(res)
+        else:
+            return result
+        
+    except NoCredentialsError:
+        raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
+    except PartialCredentialsError:
+        raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
+    except ClientError as e:
+        # Handle any specific client errors
+        error_code = e.response['Error']['Code']
+        if error_code == 'AccessDenied':
+            raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
+        else:
+            raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
+    except Exception as e:
+        # General exception handling
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    
 
 @app.get("/")
 async def root():
@@ -125,11 +176,11 @@ async def account_summary():
     """
     Get information an AWS Account Summary
     """    
-    try:
-        account_summary = get_account_summary()
-        return account_summary
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    #try:
+    account_summary = get_account_summary()
+    return account_summary
+    #except Exception as e:
+    #    raise HTTPException(status_code=500, detail=str(e))
     
 
 @app.get("/account/info")
@@ -137,11 +188,23 @@ async def account_info():
     """
     Get information an AWS Account Information
     """    
-    try:
-        account_info = get_account_info()
-        return account_info
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    #try:
+    account_info = get_account_info()
+    return account_info
+
+    #except NoCredentialsError:
+    #    raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
+    #except PartialCredentialsError:
+    #    raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
+    #except ClientError as e:
+        # Handle any specific client errors
+    ##    error_code = e.response['Error']['Code']
+     #   if error_code == 'AccessDenied':
+     #       raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
+     #   else:
+     #       raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
+    #except Exception as e:
+    #    raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/key-check")
@@ -191,6 +254,7 @@ def parsing_argument():
     parser.add_argument("-M", "--mode", type=str, default="API", help="CLI or API mode")
     #parser.add_argument("-V", "--version", typ'version', version='v0.1')
     return parser.parse_args()
+
 
 def main():
     # by using argument on CLI
