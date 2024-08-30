@@ -191,10 +191,12 @@ https://fastapi.tiangolo.com/tutorial/middleware
 
 #### Python Boto3
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sts.html
-https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sts/client/get_caller_identity.html#get-caller-identity
-https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iam/client/list_account_aliases.html#list-account-aliases
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sts/client/get_caller_identity.html#get-caller-identity<br>
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iam/client/list_account_aliases.html#list-account-aliases<br>
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/boto3.html
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/session.html
+https://boto3.amazonaws.com/v1/documentation/api/latest/guide/error-handling.html
+https://github.com/boto/botocore/blob/develop/botocore/exceptions.py
 
 &nbsp;
 
