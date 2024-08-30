@@ -64,6 +64,7 @@ https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetMFADevice.html
 
 ### Python FastAPI
 https://fastapi.tiangolo.com/tutorial/bigger-applications
+
 https://fastapi.tiangolo.com/tutorial/middleware
 
 &nbsp;
