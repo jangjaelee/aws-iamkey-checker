@@ -34,7 +34,9 @@ FROM python:3.11-slim
 ENV LC_ALL=C.UTF-8
 ENV TZ=Asia/Seoul
 
-## If you want to use static AWS Credentias fill below out but no recommend for security
+# If you want to use your environment for AWS Credentias, fill it out below.
+# But It's very vulnerable to security.
+# Recommend using IRSA on EKS or Kubernetes Secret object.
 #ENV AWS_ACCESS_KEY_ID=your-access-key-id
 #ENV AWS_SECRET_ACCESS_KEY=your-secret-access-key
 #ENV AWS_DEFAULT_REGION=your-region
@@ -55,6 +57,11 @@ EXPOSE 8000
 
 CMD ["python", "main.py", "--host", "0.0.0.0", "--port", "8000", "--mode", "API"]
 ```
+
+&nbsp;
+
+### API Specification
+
 
 &nbsp;
 

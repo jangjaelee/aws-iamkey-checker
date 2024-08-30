@@ -19,6 +19,19 @@ spec:
           image: app-aikc:latest
           ports:
           - containerPort: 8000
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credential
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credential
+              key: aws_secret_access_key
+        - name: AWS_REGION
+          value: ap-northeast-2  # replace your AWS region
         livenessProbe:
           httpGet:
             path: /healthz
