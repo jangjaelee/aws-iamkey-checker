@@ -1,6 +1,6 @@
 
 
-## Directory Structure
+Directory Structure:
 ```bash
 .
 ├── app
@@ -20,7 +20,7 @@
 
 &nbsp;
 
-## Dockerfile
+Dockerfile:
 ```bash
 FROM python:3.11-slim
 
@@ -63,8 +63,7 @@ https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetMFADevice.html
 &nbsp;
 
 ### Python FastAPI
-https://fastapi.tiangolo.com/tutorial/bigger-applications
-
+https://fastapi.tiangolo.com/tutorial/bigger-applications&nbsp;
 https://fastapi.tiangolo.com/tutorial/middleware
 
 &nbsp;
