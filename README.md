@@ -8,6 +8,10 @@
 │   └── main.py
 ├── manifests
 │   └── deployment-aikc.yaml
+│   └── ingress-aikc.yaml
+│   └── namespace-aikc.yaml
+│   └── sa-aikc.yaml
+│   └── service-aikc.yaml
 ├── .gitignore
 ├── Dockerfile
 ├── README.md
