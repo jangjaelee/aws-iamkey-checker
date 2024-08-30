@@ -86,8 +86,55 @@ kubectl create secret generic secret-aws-credentials -n aikc \
 
 &nbsp;
 
-### API Specification
+## How to use API
+AWS Access Keys의 N hours가 경과한 List 보기
+```bash
+curl http://<IP>:<Port>/key-check?hours=<Parameter(int)>
 
+[
+  {
+    "IAM User": "applicant",
+    "Access Key ID": "asdfasdfasdf",
+    "Access Key Creation Date": "2024-08-20 09:21:19+00:00",
+    "Access Key Status": "Active",
+    "Expired Hours": -761
+  },
+  {
+    "IAM User": "applicant",
+    "Access Key ID": "weasdfasdfasdf",
+    "Access Key Creation Date": "2024-08-28 07:21:10+00:00",
+    "Access Key Status": "Active",
+    "Expired Hours": -951
+  }
+]
+```
+
+&nbsp;
+
+AWS Account Number와 Alias 보기
+```bash
+curl http://<IP>:<Port>/account/info
+
+{
+  "AWS Account ID": "123456789012",
+  "AWS Account Alias": "kong engineering blog"
+}
+```
+
+&nbsp;
+
+AWS Account Information Summary 보기
+```bash
+curl http://<IP>:<Port>/account/summary
+```
+
+&nbsp;
+
+AWS IAM User Information 및 Access Key List 보기
+```bash
+curl http://<IP>:<Port>/user/{username}
+curl http://<IP>:<Port>/user/{username}/access-keys
+```
 
 &nbsp;
 
