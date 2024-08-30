@@ -30,7 +30,8 @@ This project provides a solution for monitoring the expiration status of AWS IAM
 
 &nbsp;
 
-Dockerfile:
+## Dockerfile Overview
+The Dockerfile is configured to create a lightweight container for the application. It installs necessary dependencies, including the AWS CLI, and sets up the environment for execution.
 ```bash
 FROM python:3.11-slim
 
@@ -63,14 +64,16 @@ CMD ["python", "main.py", "--host", "0.0.0.0", "--port", "8000", "--mode", "API"
 
 &nbsp;
 
-Built the Docker Image:
+## Building the Docker Image
+To build the Docker image, use the following command:
 ```bash
 docker built -t app-aikc:latest .
 ```
 
 &nbsp;
 
-Push the Docker Image to a Container Registry
+## Pushing the Docker Image to a Container Registry
+Follow these steps to push your Docker image to a container registry:
 ```bash
 docker login
 docker tag app-aikc:latest cine0831/app-aikc:latest
@@ -79,8 +82,8 @@ docker push cine0831/app-aikc:latest
 
 &nbsp;
 
-Set Up Kubernetes for AWS Credentials:
-- If you are using IRSA on EKS, skip this step
+## Kubernetes Setup for AWS Credentials
+If you're not using IAM Roles for Service Accounts (IRSA) in EKS, you'll need to create a Kubernetes Secret to store your AWS credentials:
 ```bash
 kubectl create secret generic secret-aws-credentials -n aikc \
   --from-literal=aws_access_key_id=<YOUR_AWS_ACCESS_KEY_ID> \
