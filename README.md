@@ -92,11 +92,15 @@ kubectl create secret generic secret-aws-credentials -n aikc \
 
 &nbsp;
 
-## How to use API
-AWS Access Keys의 N hours가 경과한 IAM User list 보기
+## API Usage
+### Retrieve IAM Users with Expired Access Keys
+To get a list of IAM users whose Access Keys have expired beyond a specified number of hours:
 ```bash
 curl http://<IP>:<Port>/key-check?hours=<Parameter(int)>
+```
 
+Response Example:
+```bash
 [
   {
     "IAM User": "applicant",
@@ -117,19 +121,12 @@ curl http://<IP>:<Port>/key-check?hours=<Parameter(int)>
 
 &nbsp;
 
-AWS Account Number와 Alias 보기
+### Retrieve AWS Account Information
+- **Account Number and Alias:**
 ```bash
 curl http://<IP>:<Port>/account/info
-
-{
-  "AWS Account ID": "123456789012",
-  "AWS Account Alias": "kong engineering blog"
-}
 ```
-
-&nbsp;
-
-AWS Account Information Summary 보기
+- **AWS Account Information Summary:**
 ```bash
 curl http://<IP>:<Port>/account/summary
 ```
