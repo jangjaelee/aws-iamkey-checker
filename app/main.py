@@ -50,7 +50,7 @@ def get_account_summary():
         if error_code == 'AccessDenied':
             raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
         else:
-            raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
+            raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")        
     except Exception as e:
         # General exception handling
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
@@ -218,8 +218,15 @@ async def get_user_info(username: str):
     try:
         res = iam_client.get_user(UserName=username)
         return res['User']
+
+    except NoCredentialsError:
+        raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
+    except PartialCredentialsError:
+        raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
     except ClientError as e:
         raise HTTPException(status_code=404, detail=f"User {username} not found. {e.response['Error']['Message']}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
 @app.get("/user/{username}/access-keys")
@@ -230,8 +237,15 @@ async def list_access_keys(username: str):
     try:
         res = iam_client.list_access_keys(UserName=username)
         return res['AccessKeyMetadata']
+
+    except NoCredentialsError:
+        raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
+    except PartialCredentialsError:
+        raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
     except ClientError as e:
         raise HTTPException(status_code=404, detail=f"Cannot list access keys for {username}. {e.response['Error']['Message']}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
 @app.get("/health",  summary="Health Check", response_description="Return HTTP Status Code 200 (OK)", status_code=200)
@@ -248,16 +262,16 @@ def parsing_argument():
     parser.add_argument("-H", "--host", type=str, default="127.0.0.1", help="Listen address")
     parser.add_argument("-P", "--port", type=int, default=8000, help="Port number")
     parser.add_argument("-M", "--mode", type=str, default="API", help="CLI or API mode")
-    #parser.add_argument("-V", "--version", typ'version', version='v0.1')
+    parser.add_argument("-V", "--version", action="version", version="%(prog)s v0.0.1-alpha")
     return parser.parse_args()
 
 
 def main():
-    # by using argument on CLI
+    # For use argument on CLI
     args = parsing_argument()
     config = args
 
-    #if mode CLI or API
+    # If mode CLI or API
     if config.mode == 'API':
         uvicorn.run("main:app", host=config.host, port=config.port)
     elif config.mode == 'CLI':
