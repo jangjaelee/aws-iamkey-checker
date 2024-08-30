@@ -16,7 +16,7 @@
 
 &nbsp;
 
-## Dockerefile
+## Dockerfile
 ```bash
 FROM python:3.11-slim
 
