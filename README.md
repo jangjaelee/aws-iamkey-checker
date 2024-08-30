@@ -1,5 +1,4 @@
 # AWS IAM user's Access Key expired checker
----
 
 ### Prerequisites
 - Python 3.11+
