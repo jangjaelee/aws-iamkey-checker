@@ -5,7 +5,7 @@
 # * Title    : AWS Access Key expired checker of IAM Users
 # * Auther   : by Jangjae, Lee
 # * Created  : 08-28-2024
-# * Modified : 08-29-2024
+# * Modified : 08-30-2024
 # * E-mail   : cine0831@gmail.com
 #**/
 
