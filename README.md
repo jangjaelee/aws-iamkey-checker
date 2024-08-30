@@ -1,13 +1,15 @@
 # AWS IAM user's Access Key expired checker
 
+This project provides a solution for monitoring the expiration status of AWS IAM users' Access Keys. It is designed to run as a containerized application on Kubernetes, supporting both API and CLI modes for flexible usage.
+
 ### Prerequisites
-- Python 3.11+
-- Docker (for container image build)
-- Kubernetes (To run application)
+- **Python**: 3.11 or higher
+- **Docker**: Required for building the container image
+- **Kubernetes**: Required for deploying and running the application
 
 &nbsp;
 
-Directory Structure:
+## Project Structure:
 ```bash
 .
 ├── app
