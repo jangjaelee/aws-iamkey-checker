@@ -14,6 +14,8 @@
 └── requirements.txt
 ```
 
+&nbsp;
+
 ## Dockerefile
 ```bash
 FROM python:3.11-slim
@@ -43,6 +45,7 @@ EXPOSE 8000
 CMD ["python", "main.py", "--host", "0.0.0.0", "--port", "8000", "--mode", "API"]
 ```
 
+&nbsp;
 
 ## References
 ### AWS API
@@ -53,9 +56,13 @@ https://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKeyLastUsed.html
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKeyMetadata.html
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetMFADevice.html
 
+&nbsp;
+
 ### Python FastAPI
 https://fastapi.tiangolo.com/tutorial/bigger-applications/
 https://fastapi.tiangolo.com/tutorial/middleware/
+
+&nbsp;
 
 ### Python Boto3
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sts.html
@@ -63,6 +70,8 @@ https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sts/c
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iam/client/list_account_aliases.html#list-account-aliases
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/boto3.html
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/session.html
+
+&nbsp;
 
 ### Python argparse
 https://docs.python.org/3/library/argparse.html
