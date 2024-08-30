@@ -13,41 +13,48 @@ spec:
       labels:
         app: app-aikc
     spec:
+      # Uncomment and ensure the service account exists if needed
       serviceAccountName: sa-aikc
       containers:
         - name: app-aikc
-          image: app-aikc:latest
+          image: cine0831/app-aikc:latest
+          imagePullPolicy: Always
           ports:
-          - containerPort: 8000
-        env:
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: aws-credential
-              key: aws_access_key_id
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: aws-credential
-              key: aws_secret_access_key
-        - name: AWS_REGION
-          value: ap-northeast-2  # replace your AWS region
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8000
-          initialDelaySeconds: 10 
-          periodSeconds: 10
-        #readinessProbe:
-        #  httpGet:
-        #    path: /readiness
-        #    port: 8000
-        #  initialDelaySeconds: 5 
-        #  periodSeconds: 5 
-        resources:
-          requests:
-            memory: "128Mi" 
-            cpu: "250m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
+            - containerPort: 8000
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: secret-aws-credentials
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secret-aws-credentials
+                  key: aws_secret_access_key
+            - name: AWS_REGION
+              value: ap-northeast-2  # replace your AWS region
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1

@@ -60,6 +60,28 @@ CMD ["python", "main.py", "--host", "0.0.0.0", "--port", "8000", "--mode", "API"
 
 &nbsp;
 
+Built the Docker Image:
+```bash
+docker built -t app-aikc:latest .
+```
+
+Push the Docker Image to a Container Registry
+```bash
+docker login
+docker tag app-aikc:latest cine0831/app-aikc:latest
+docker push cine0831/app-aikc:latest
+```
+
+&nbsp;
+
+Set Up Kubernetes for AWS Credentials:
+- If you are using IRSA on EKS, skip this step
+```bash
+kubectl create secret generic secret-aws-credentials -n aikc \
+  --from-literal=aws_access_key_id=<YOUR_AWS_ACCESS_KEY_ID> \
+  --from-literal=aws_secret_access_key=<YOUR_AWS_SECRET_ACCESS_KEY>
+```
+
 ### API Specification
 
 

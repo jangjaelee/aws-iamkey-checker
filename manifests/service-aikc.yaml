@@ -7,10 +7,12 @@ metadata:
   name: service-aikc
 spec:
   selector:
-    app: 
+    app: app-aikc
   ports:
     - protocol: TCP
       port: 8000
       targetPort: 8000
-  type: ClusterIP
+      nodePort: 30010  # Comment, If do not use NodePort
+  #type: ClusterIP
   #type: LoadBalancer  # Uncomment, If use NLB type
+  type: NodePort      # uncomment, If use local environment testing
