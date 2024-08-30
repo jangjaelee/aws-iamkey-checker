@@ -140,11 +140,19 @@ def expired_access_key_check(hours: int, mode: str="API"):
                     }
                     result.append(user_info)
 
+        # 결과는 json 혀식으로 변환
+        res = json.dumps(result, indent=4)
+
         # CLI mode로 동작시 JSON 형식으로 출력
         if mode == 'CLI':
-            res = json.dumps(result, indent=4)
-            print(res)
+            # 결과값 null 인지 확인
+            if not result:
+                print("No expired access keys found")
+            else:
+                print(res)
         else:
+            if not result:
+                raise HTTPException(status_code=404, detail="No expired access keys found")
             return result
         
     except NoCredentialsError:
@@ -152,14 +160,12 @@ def expired_access_key_check(hours: int, mode: str="API"):
     except PartialCredentialsError:
         raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
     except ClientError as e:
-        # Handle any specific client errors
         error_code = e.response['Error']['Code']
         if error_code == 'AccessDenied':
             raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
         else:
             raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
     except Exception as e:
-        # General exception handling
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     
 
@@ -176,11 +182,9 @@ async def account_summary():
     """
     Get information an AWS Account Summary
     """    
-    #try:
     account_summary = get_account_summary()
+  
     return account_summary
-    #except Exception as e:
-    #    raise HTTPException(status_code=500, detail=str(e))
     
 
 @app.get("/account/info")
@@ -188,23 +192,9 @@ async def account_info():
     """
     Get information an AWS Account Information
     """    
-    #try:
     account_info = get_account_info()
+  
     return account_info
-
-    #except NoCredentialsError:
-    #    raise HTTPException(status_code=403, detail="No valid AWS credentials were found.")
-    #except PartialCredentialsError:
-    #    raise HTTPException(status_code=403, detail="Incomplete AWS credentials configuration.")
-    #except ClientError as e:
-        # Handle any specific client errors
-    ##    error_code = e.response['Error']['Code']
-     #   if error_code == 'AccessDenied':
-     #       raise HTTPException(status_code=403, detail="Access denied to get caller identity.")
-     #   else:
-     #       raise HTTPException(status_code=500, detail=f"An AWS client error occurred: {e}")
-    #except Exception as e:
-    #    raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/key-check")
@@ -212,14 +202,12 @@ async def get_expired_access_key_check(hours: int):
     """
     To check expired AWS Access Keys of IAM Users
     """
-
-    try:
-        keys = expired_access_key_check(hours)
-        if not keys:
-            raise HTTPException(status_code=404, detail="No expired access keys found")
-        return keys
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    keys = expired_access_key_check(hours)
+  
+    #if not keys:
+    #     raise HTTPException(status_code=404, detail="No expired access keys found")
+  
+    return keys
 
 
 @app.get("/user/{username}")
@@ -246,8 +234,13 @@ async def list_access_keys(username: str):
         raise HTTPException(status_code=404, detail=f"Cannot list access keys for {username}. {e.response['Error']['Message']}")
 
 
+@app.get("/health",  summary="Health Check", response_description="Return HTTP Status Code 200 (OK)", status_code=200)
+async def health():
+    return {"Status": "healthy"}
+
+
 def parsing_argument():
-    parser = argparse.ArgumentParser(description="FastAPI application with CLI parameters.")
+    parser = argparse.ArgumentParser(description="AWS Access Key checker application with CLI parameters.")
     parser.add_argument("-T", "--time", type=int, default=2160, help="Expiration time" )
     parser.add_argument("-H", "--host", type=str, default="127.0.0.1", help="Listen address")
     parser.add_argument("-P", "--port", type=int, default=8000, help="Port number")
