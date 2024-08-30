@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-aikc
+  namespace: aikc
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing  # Or 'internal' for internal ALB
+    alb.ingress.kubernetes.io/target-type: ip  # Or 'instance' for IP targets
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+    # alb.ingress.kubernetes.io/healthcheck-port: "8000"
+    # alb.ingress.kubernetes.io/ssl-redirect: "443"
+    # alb.ingress.kubernetes.io/ssl-cert: arn:aws:acm:REGION:ACCOUNT_ID:certificate/CERTIFICATE_ID  # Replace with your ACM certificate ARN
+spec:
+  ingressClassName: alb
+  rules:
+    - host: aikc.awx.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service-aikc
+                port:
+                  number: 8000
+#  tls:
+#    - hosts:
+#        - aikc.awx.kr
+#      secretName: tls-secret-aikc

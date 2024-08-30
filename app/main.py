@@ -248,8 +248,8 @@ async def list_access_keys(username: str):
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
-@app.get("/health",  summary="Health Check", response_description="Return HTTP Status Code 200 (OK)", status_code=200)
-async def health():
+@app.get("/healthz",  summary="Health Check", response_description="Return HTTP Status Code 200 (OK)", status_code=200)
+async def healthz():
     """
     Perform a Health Check
     """    

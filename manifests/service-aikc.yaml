@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    # service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # For Network Load Balancer
+    # service.beta.kubernetes.io/aws-load-balancer-internal: "true"  # For internal load balancer
+  name: service-aikc
+spec:
+  selector:
+    app: 
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+  #type: LoadBalancer  # Uncomment, If use NLB type

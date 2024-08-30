@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-aikc
+  namespace: aikc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-aikc
+  template:
+    metadata:
+      labels:
+        app: app-aikc
+    spec:
+      serviceAccountName: sa-aikc
+      containers:
+        - name: app-aikc
+          image: app-aikc:latest
+          ports:
+          - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 10 
+          periodSeconds: 10
+        #readinessProbe:
+        #  httpGet:
+        #    path: /readiness
+        #    port: 8000
+        #  initialDelaySeconds: 5 
+        #  periodSeconds: 5 
+        resources:
+          requests:
+            memory: "128Mi" 
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

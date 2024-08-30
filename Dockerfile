@@ -2,9 +2,12 @@ FROM python:3.11-slim
 
 ENV LC_ALL=C.UTF-8
 ENV TZ=Asia/Seoul
+
+## If you want to use static AWS Credentias fill below out but no recommend for security
 #ENV AWS_ACCESS_KEY_ID=your-access-key-id
 #ENV AWS_SECRET_ACCESS_KEY=your-secret-access-key
 #ENV AWS_DEFAULT_REGION=your-region
+
 
 WORKDIR /app
 
