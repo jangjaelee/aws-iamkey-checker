@@ -133,9 +133,13 @@ curl http://<IP>:<Port>/account/summary
 
 &nbsp;
 
-AWS IAM User Information 및 Access Key List 보기
+### Retrieve IAM User Information
+- **User Details:**
 ```bash
 curl http://<IP>:<Port>/user/{username}
+```
+- **Access Key List for a User:**
+```bash
 curl http://<IP>:<Port>/user/{username}/access-keys
 ```
 
