@@ -205,7 +205,7 @@ async def get_expired_access_key_check(hours: int):
     keys = expired_access_key_check(hours)
   
     #if not keys:
-    #     raise HTTPException(status_code=404, detail="No expired access keys found")
+    #    raise HTTPException(status_code=404, detail="No expired access keys found")
   
     return keys
 
@@ -225,7 +225,7 @@ async def get_user_info(username: str):
 @app.get("/user/{username}/access-keys")
 async def list_access_keys(username: str):
     """
-    List access keys for an IAM user.
+    List access keys for an IAM user
     """
     try:
         res = iam_client.list_access_keys(UserName=username)
@@ -236,6 +236,9 @@ async def list_access_keys(username: str):
 
 @app.get("/health",  summary="Health Check", response_description="Return HTTP Status Code 200 (OK)", status_code=200)
 async def health():
+    """
+    Perform a Health Check
+    """    
     return {"Status": "healthy"}
 
 
