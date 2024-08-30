@@ -65,6 +65,8 @@ Built the Docker Image:
 docker built -t app-aikc:latest .
 ```
 
+&nbsp;
+
 Push the Docker Image to a Container Registry
 ```bash
 docker login
@@ -81,6 +83,8 @@ kubectl create secret generic secret-aws-credentials -n aikc \
   --from-literal=aws_access_key_id=<YOUR_AWS_ACCESS_KEY_ID> \
   --from-literal=aws_secret_access_key=<YOUR_AWS_SECRET_ACCESS_KEY>
 ```
+
+&nbsp;
 
 ### API Specification
 
