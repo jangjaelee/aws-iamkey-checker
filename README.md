@@ -18,6 +18,7 @@ Directory Structure:
 │   └── ingress-aikc.yaml
 │   └── namespace-aikc.yaml
 │   └── sa-aikc.yaml
+│   └── secret-aws-credentials.yaml
 │   └── service-aikc.yaml
 ├── .gitignore
 ├── Dockerfile
