@@ -1,4 +1,12 @@
+# AWS IAM user's Access Key expired checker
+---
 
+### Prerequisites
+- Python 3.11+
+- Docker (for container image build)
+- Kubernetes (To run application)
+
+&nbsp;
 
 Directory Structure:
 ```bash
