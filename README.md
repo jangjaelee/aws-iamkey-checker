@@ -176,6 +176,7 @@ kubectl exec -it app-aikc-66644cd6d8-vvkpj -n aikc -- python main.py --mode CLI 
 #### AWS API
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_User.html
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetUser.html
+https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUsers.html
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKey.html
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKeyLastUsed.html
 https://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKeyMetadata.html
