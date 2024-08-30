@@ -258,9 +258,9 @@ async def healthz():
 
 def parsing_argument():
     parser = argparse.ArgumentParser(description="AWS Access Key checker application with CLI parameters.")
-    parser.add_argument("-T", "--time", type=int, default=2160, help="Expiration time" )
-    parser.add_argument("-H", "--host", type=str, default="127.0.0.1", help="Listen address")
-    parser.add_argument("-P", "--port", type=int, default=8000, help="Port number")
+    parser.add_argument("-T", "--time", type=int, default=2160, help="Expiration time, default: 2160 hours" )
+    parser.add_argument("-H", "--host", type=str, default="127.0.0.1", help="Listen address, default: 127.0.0.1")
+    parser.add_argument("-P", "--port", type=int, default=8000, help="Port number, default: 8000")
     parser.add_argument("-M", "--mode", type=str, default="API", help="CLI or API mode")
     parser.add_argument("-V", "--version", action="version", version="%(prog)s v0.0.1-alpha")
     return parser.parse_args()

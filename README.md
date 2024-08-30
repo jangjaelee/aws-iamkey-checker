@@ -87,7 +87,7 @@ kubectl create secret generic secret-aws-credentials -n aikc \
 &nbsp;
 
 ## How to use API
-AWS Access Keys의 N hours가 경과한 List 보기
+AWS Access Keys의 N hours가 경과한 IAM User list 보기
 ```bash
 curl http://<IP>:<Port>/key-check?hours=<Parameter(int)>
 
@@ -137,6 +137,25 @@ curl http://<IP>:<Port>/user/{username}/access-keys
 ```
 
 &nbsp;
+
+## How to use CLI
+CLI mode를 사용하여 N hours가 IAM User list 보기
+```bash
+usage: main.py [-h] [-T TIME] [-H HOST] [-P PORT] [-M MODE] [-V]
+
+AWS Access Key checker application with CLI parameters.
+
+options:
+  -h, --help            show this help message and exit
+  -T TIME, --time TIME  Expiration time, default: 2160 hours
+  -H HOST, --host HOST  Listen address, default: 127.0.0.1
+  -P PORT, --port PORT  Port number, default: 8000
+  -M MODE, --mode MODE  CLI or API mode
+  -V, --version         show program's version number and exit
+
+
+kubectl exec -it app-aikc-66644cd6d8-vvkpj -n aikc -- python main.py --mode CLI --time 1000
+```
 
 ## References
 #### AWS API
