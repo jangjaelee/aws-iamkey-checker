@@ -145,8 +145,8 @@ curl http://<IP>:<Port>/user/{username}/access-keys
 
 &nbsp;
 
-## How to use CLI
-CLI mode를 사용하여 N hours가 IAM User list 보기
+## CLI Usage
+To run the application in CLI mode and retrieve IAM users with expired Access Keys:
 ```bash
 usage: main.py [-h] [-T TIME] [-H HOST] [-P PORT] [-M MODE] [-V]
 
@@ -159,10 +159,18 @@ options:
   -P PORT, --port PORT  Port number, default: 8000
   -M MODE, --mode MODE  CLI or API mode
   -V, --version         show program's version number and exit
+```
 
+```bash
+python main.py --mode CLI --time <N_hours>
+```
 
+Usage Example with Kubernetes:
+```bash
 kubectl exec -it app-aikc-66644cd6d8-vvkpj -n aikc -- python main.py --mode CLI --time 1000
 ```
+
+&nbsp;
 
 ## References
 #### AWS API
