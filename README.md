@@ -67,7 +67,7 @@ CMD ["python", "main.py", "--host", "0.0.0.0", "--port", "8000", "--mode", "API"
 ## Building the Docker Image
 To build the Docker image, use the following command:
 ```bash
-docker built -t app-aikc:latest .
+docker build -t app-aikc:latest .
 ```
 
 &nbsp;
